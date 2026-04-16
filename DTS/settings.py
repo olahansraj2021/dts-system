@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'DTS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dts_db_s1ol',
+        'USER': 'dts_db_s1ol_user',
+        'PASSWORD': 'uiKCIyp8mFMyJGZBeWTVrsXAmbjCyCZK',
+        'HOST': 'dpg-d7gcmrvlk1mc7385bus0-a',
+        'PORT': '5432',
     }
 }
 
