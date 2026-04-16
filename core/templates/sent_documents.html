@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+
+    <h2>📤 My Sent Documents</h2>
+
+    {% if not documents %}
+        <p style="color:red;">No documents found</p>
+    {% endif %}
+
+    <table class="styled-table">
+        <tr>
+            <th>Doc No</th>
+            <th>Status</th>
+            <th>Current Holder</th>
+            <th>Action</th>
+        </tr>
+
+        {% for doc in documents %}
+        <tr>
+
+            <td>{{ doc.doc_number }}</td>
+
+            <td>
+                {% if doc.is_external %}
+                    🌍 External
+                {% elif 'Approved' in doc.status %}
+                    ✅ Approved
+                {% elif 'Rejected' in doc.status %}
+                    ❌ Rejected
+                {% elif 'Forwarded' in doc.status %}
+                    📤 Forwarded
+                {% else %}
+                    ⏳ In Process
+                {% endif %}
+            </td>
+
+            <td>
+                {% if doc.current_holder %}
+                    {{ doc.current_holder.get_full_name|default:doc.current_holder.username }}
+                {% else %}
+                    External
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{% url 'document_detail' doc.id %}" class="btn blue">
+                    View
+                </a>
+            </td>
+
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card" style="max-width:650px;margin:auto;">
+
+<h2>📄 Create New Document</h2>
+
+<form method="POST">
+{% csrf_token %}
+
+<!-- SUBJECT -->
+<label>Subject</label>
+<input type="text" name="subject" placeholder="Enter subject..." required>
+
+
+<!-- DOCUMENT TYPE -->
+<label>Document Type</label>
+<select name="doc_type" id="doc_type" required>
+    <option value="" disabled selected>-- Select Document Type --</option>
+    <option value="office_order">Office Order</option>
+    <option value="notification">Notification</option>
+    <option value="circular">Circular</option>
+    <option value="note">Note</option>
+    <option value="correspondence">Correspondence to Outside Party</option>
+    <option value="other">Others</option>
+</select>
+
+<div id="docTypeOtherBox" style="display:none;">
+    <input type="text" name="doc_type_other" placeholder="Enter document type">
+</div>
+
+
+<!-- SENDER -->
+<label>Sender</label>
+<select name="sender_type" id="sender_type" onchange="toggleSender()">
+    <!--option value="" disabled selected>-- Select Sender Type --</option-->
+    <option value="department">Department</option>
+    <option value="other">Others</option>
+</select>
+
+<!-- Department Sender -->
+<div id="deptBox">
+    <select name="sender_department">
+        <option value="">-- Select Department --</option>
+        {% for dept in departments %}
+        <option value="{{ dept.id }}">{{ dept.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Other Sender -->
+<div id="otherBox" style="display:none;">
+    <input type="text" name="sender_other" placeholder="Enter sender name">
+</div>
+
+
+<!-- DATE RECEIVED -->
+<label>Date Received</label>
+<input type="date" name="date_received">
+
+<label>Priority</label>
+<select name="priority">
+<option value="Normal">Normal</option>
+<option value="Urgent">Urgent</option>
+</select>
+
+<label>Mark To</label>
+<select name="first_user">
+<option value="" disabled selected>-- Select User --</option>
+    {% for user in users %}
+<option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+    {% endfor %}
+</select>
+
+
+<br>
+<button class="btn blue" style="width:100%;padding:10px;">
+Create & Send
+</button>
+
+</form>
+</div>
+
+
+<!-- STYLE -->
+<style>
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+</style>
+
+
+<!-- JS -->
+<script>
+function toggleDocType(){
+    let val = document.getElementById("doc_type").value;
+    document.getElementById("docTypeOtherBox").style.display =
+        (val === "other") ? "block" : "none";
+}
+
+function toggleSender(){
+    let val = document.getElementById("sender_type").value;
+
+    document.getElementById("deptBox").style.display =
+        (val === "department") ? "block" : "none";
+
+    document.getElementById("otherBox").style.display =
+        (val === "other") ? "block" : "none";
+}
+</script>
+
+{% endblock %}

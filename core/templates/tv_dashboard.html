@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DTS TV Dashboard PRO</title>
+
+<style>
+body {
+    margin:0;
+    font-family:Segoe UI;
+    background:#0f172a;
+    color:white;
+}
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 30px;
+    background:#1e293b;
+}
+
+.title h1 { color:#38bdf8; margin:0; }
+.time { font-size:20px; }
+
+/* STATS */
+.stats {
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+.stat {
+    flex:1;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    font-size:20px;
+}
+
+/* TABLE */
+table {
+    width:100%;
+    font-size:22px;
+}
+
+th {
+    background:#334155;
+    padding:12px;
+}
+
+td {
+    padding:12px;
+}
+
+/* COLORS */
+.approved { color:#22c55e; }
+.rejected { color:#ef4444; }
+.forwarded { color:#facc15; }
+.pending { color:#38bdf8; }
+
+.external-row {
+    background:#7f1d1d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="title">
+        <h1>DTS Dashboard</h1>
+    </div>
+    <div class="time" id="time"></div>
+</div>
+
+<div class="stats">
+    <div class="stat">Total: <span id="total">0</span></div>
+    <div class="stat">Pending: <span id="pending">0</span></div>
+    <div class="stat">External: <span id="external">0</span></div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Doc No</th>
+<th>Status</th>
+<th>Holder</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody id="table-body">
+</tbody>
+</table>
+
+<script>
+let page = 0;
+const pageSize = 8;
+let allData = [];
+
+/* TIME */
+setInterval(()=>{
+    document.getElementById("time").innerText = new Date().toLocaleTimeString();
+},1000);
+
+/* FETCH DATA */
+async function loadData(){
+    const res = await fetch("/api/tv-dashboard/");
+    const json = await res.json();
+
+    allData = json.data;
+
+    updateStats();
+    renderPage();
+}
+
+/* STATS */
+function updateStats(){
+    document.getElementById("total").innerText = allData.length;
+
+    let pending = allData.filter(d => d.status.includes("Forward")).length;
+    let external = allData.filter(d => d.is_external).length;
+
+    document.getElementById("pending").innerText = pending;
+    document.getElementById("external").innerText = external;
+}
+
+/* PAGINATION */
+function renderPage(){
+    const start = page * pageSize;
+    const slice = allData.slice(start, start + pageSize);
+
+    let html = "";
+
+    slice.forEach(d=>{
+        let cls = "pending";
+
+        if(d.status.includes("Approved")) cls="approved";
+        else if(d.status.includes("Rejected")) cls="rejected";
+        else if(d.status.includes("Forward")) cls="forwarded";
+
+        html += `
+        <tr class="${d.is_external ? 'external-row':''}">
+            <td>${d.doc_no}</td>
+            <td class="${cls}">${d.status}</td>
+            <td>${d.holder}</td>
+            <td>${d.created_at}</td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("table-body").innerHTML = html;
+}
+
+/* AUTO SLIDE */
+setInterval(()=>{
+    if(allData.length > pageSize){
+        page++;
+        if(page * pageSize >= allData.length) page = 0;
+        renderPage();
+    }
+},5000);
+
+/* AUTO REFRESH DATA */
+setInterval(loadData,10000);
+
+loadData();
+</script>
+
+</body>
+</html>

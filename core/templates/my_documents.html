@@ -1,0 +1,38 @@
+<h2>My Documents</h2>
+
+<table border="1">
+    <tr>
+        <th>Doc No</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for doc in documents %}
+    <tr>
+        <td>{{ doc.doc_number }}</td>
+        <td>{{ doc.subject }}</td>
+        <td>{{ doc.status }}</td>
+
+        <td>
+            <form method="POST">
+                {% csrf_token %}
+
+                <input type="hidden" name="doc_id" value="{{ doc.id }}">
+
+                <!-- USER SELECT -->
+                <select name="to_user">
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- BUTTONS -->
+                <button type="submit" name="action" value="forward">Forward</button>
+                <button type="submit" name="action" value="return">Return</button>
+
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

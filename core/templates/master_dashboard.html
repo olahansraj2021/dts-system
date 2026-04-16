@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+<h2> Master Dashboard</h2>
+</div>
+
+<!-- ================= USER LOAD ================= -->
+<div class="card">
+<h3>👥 Documents per User</h3>
+
+<table class="styled-table">
+<tr>
+<th>User</th>
+<th>Total Documents</th>
+</tr>
+
+{% for u in user_data %}
+<tr>
+<td>
+{{ u.current_holder__first_name }} {{ u.current_holder__last_name }}
+</td>
+<td>
+<b>{{ u.total_docs }}</b>
+</td>
+</tr>
+{% empty %}
+<tr>
+<td colspan="2">No data available</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+
+<!-- ================= DOCUMENT TRACKING ================= -->
+<div class="card">
+<h3>📄 Document Tracking (Active Only)</h3>
+
+<table class="styled-table">
+<tr>
+<th>Doc No</th>
+<th>Subject</th>
+<th>Holder</th>
+<th>Status</th>
+</tr>
+
+{% for d in documents %}
+<tr>
+
+<td>{{ d.doc_number }}</td>
+
+<td>{{ d.subject }}</td>
+
+<!-- ✅ SAFE HOLDER -->
+<td>
+{% if d.current_holder %}
+    {{ d.current_holder.get_full_name|default:d.current_holder.username }}
+{% else %}
+    🌍 External ({{ d.external_approver|default:"N/A" }})
+{% endif %}
+</td>
+
+<!-- ✅ STATUS COLOR -->
+<td>
+{% if "closed" in d.status|lower %}
+    <span style="color:gray;">{{ d.status }}</span>
+{% elif "external" in d.status|lower %}
+    <span style="color:red;">{{ d.status }}</span>
+{% else %}
+    <span style="color:blue;">{{ d.status }}</span>
+{% endif %}
+</td>
+
+</tr>
+{% empty %}
+<tr>
+<td colspan="4">No active documents</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+{% endblock %}

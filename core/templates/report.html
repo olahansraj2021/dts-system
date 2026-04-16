@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+<h2>📊 Report System</h2>
+
+<form method="GET" style="display:flex; gap:10px; flex-wrap:wrap;">
+
+    <!-- TYPE -->
+    <select name="doc_type">
+        <option value="">All Types</option>
+        <option value="office_order">Office Order</option>
+        <option value="notification">Notification</option>
+        <option value="circular">Circular</option>
+        <option value="note">Note</option>
+        <option value="correspondence">Correspondence</option>
+        <option value="other">Others</option>
+    </select>
+
+    <!-- DEPARTMENT -->
+    <select name="sender_department">
+        <option value="">All Departments</option>
+        {% for dept in departments %}
+        <option value="{{ dept.id }}">{{ dept.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- DATE -->
+    <input type="date" name="start_date">
+    <input type="date" name="end_date">
+
+    <button class="btn blue">Filter</button>
+
+    <a href="?export=csv" class="btn green">📤 Export CSV</a>
+
+</form>
+</div>
+
+
+<div class="card">
+<table class="styled-table">
+
+<tr>
+<th>Doc No</th>
+<th>Subject</th>
+<th>Type</th>
+<th>Sender</th>
+<th>Date</th>
+<th>Status</th>
+</tr>
+
+{% for d in documents %}
+<tr>
+<td>{{ d.doc_number }}</td>
+<td>{{ d.subject }}</td>
+
+<td>
+{% if d.doc_type == "other" %}
+    {{ d.doc_type_other }}
+{% else %}
+    {{ d.get_doc_type_display }}
+{% endif %}
+</td>
+
+<td>
+{% if d.sender_department %}
+    {{ d.sender_department.name }}
+{% else %}
+    {{ d.sender_other }}
+{% endif %}
+</td>
+
+<td>{{ d.date_received|date:"d M Y" }}</td>
+<td>{{ d.status }}</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+{% endblock %}

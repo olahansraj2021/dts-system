@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+
+    <h2 style="margin-bottom:15px;">
+        🔄 Forward Document
+    </h2>
+
+    <!-- DOC INFO -->
+    <div style="margin-bottom:20px; padding:15px; background:#f8fafc; border-radius:10px;">
+        <p><strong>📄 Doc No:</strong> {{ doc.doc_number }}</p>
+        <p><strong>📝 Subject:</strong> {{ doc.subject }}</p>
+        <p><strong>👤 Current Holder:</strong> 
+            {{ doc.current_holder.get_full_name|default:doc.current_holder.username }}
+        </p>
+    </div>
+
+    <!-- FORM -->
+    <form method="POST" action="{% url 'forward_document' doc.id %}">
+        {% csrf_token %}
+
+        <!-- FORWARD TYPE -->
+        <label style="font-weight:bold;">Forward Type</label>
+        <select id="type" name="forward_type" onchange="toggleField()"
+            style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;">
+            
+            <option value="internal">Internal User</option>
+            <option value="external">External Authority</option>
+        </select>
+
+
+        <!-- INTERNAL USER -->
+        <div id="internalBox">
+            <label style="font-weight:bold;">Select User</label>
+            <select name="user_id"
+                style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;">
+                
+                <option value="">-- Select User --</option>
+
+                {% for user in users %}
+                    <option value="{{ user.id }}">
+                        {{ user.get_full_name|default:user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <!-- EXTERNAL AUTHORITY -->
+        <div id="externalBox" style="display:none;">
+            <label style="font-weight:bold;">External Authority</label>
+            <input type="text" name="external_name"
+                placeholder="e.g. Director, Registrar"
+                style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;">
+        </div>
+
+
+        <!-- REMARKS -->
+        <label style="font-weight:bold;">Remarks</label>
+        <textarea name="remarks" placeholder="Enter remarks..."
+            style="width:100%; padding:10px; height:100px; border-radius:8px; border:1px solid #ccc;"></textarea>
+
+
+        <!-- BUTTONS -->
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button type="submit" class="btn blue">
+                <i class="fa fa-paper-plane"></i> Forward
+            </button>
+
+            <a href="{% url 'dashboard' %}" class="btn gray">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TOGGLE SCRIPT -->
+<script>
+function toggleField() {
+    let type = document.getElementById("type").value;
+
+    if(type === "external"){
+        document.getElementById("internalBox").style.display = "none";
+        document.getElementById("externalBox").style.display = "block";
+    } else {
+        document.getElementById("internalBox").style.display = "block";
+        document.getElementById("externalBox").style.display = "none";
+    }
+}
+</script>
+
+{% endblock %}

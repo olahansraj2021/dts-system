@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        
+        <h2>📊 Dashboard</h2>
+
+        <div style="display:flex; gap:10px;">
+
+            <a href="{% url 'create_document' %}" class="btn blue">
+                + Create Document
+            </a>
+
+            {% if request.user.profile.role|lower == "dispatch" and external_docs %}
+            <button onclick="toggleReceive()" class="btn green">
+                📥 Receive Back ({{ external_docs|length }})
+            </button>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+    <form method="GET" style="margin-top:15px;">
+        <input type="text" name="q" placeholder="🔍 Search documents..."
+            value="{{ request.GET.q }}"
+            style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+    </form>
+
+</div>
+
+
+<!-- ================= ASSIGNED DOCUMENTS ================= -->
+<div class="card">
+<h3>📥 Assigned To Me</h3>
+
+<table class="styled-table">
+<tr>
+<th>Doc No</th>
+<th>Subject</th>
+<th>Type</th>
+<th>Sender</th>
+<th>Date</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+{% for doc in assigned_docs %}
+<tr>
+
+<td>{{ doc.doc_number }}</td>
+<td>{{ doc.subject }}</td>
+
+<!-- TYPE -->
+<td>
+{% if doc.doc_type == "other" and doc.doc_type_other %}
+    {{ doc.doc_type_other }}
+{% else %}
+    {{ doc.get_doc_type_display|default:"-" }}
+{% endif %}
+</td>
+
+<!-- SENDER -->
+<td>
+{% if doc.sender_department %}
+    {{ doc.sender_department.name }}
+{% elif doc.sender_other %}
+    {{ doc.sender_other }}
+{% else %}
+    -
+{% endif %}
+</td>
+
+<!-- DATE -->
+<td>
+{% if doc.date_received %}
+    {{ doc.date_received|date:"d M Y" }}
+{% else %}
+    -
+{% endif %}
+</td>
+
+<td class="{{ doc.status|lower }}">{{ doc.status }}</td>
+
+<td>
+<a href="{% url 'document_detail' doc.id %}" class="btn gray">View</a>
+</td>
+
+</tr>
+{% empty %}
+<tr><td colspan="7">No documents</td></tr>
+{% endfor %}
+
+</table>
+</div>
+
+
+<!-- ================= CREATED DOCUMENTS ================= -->
+<div class="card">
+<h3>📤 Created By Me</h3>
+
+<table class="styled-table">
+<tr>
+<th>Doc No</th>
+<th>Subject</th>
+<th>Type</th>
+<th>Current Holder</th>
+<th>Status</th>
+</tr>
+
+{% for doc in created_docs %}
+<tr>
+
+<td>{{ doc.doc_number }}</td>
+<td>{{ doc.subject }}</td>
+
+<td>
+{% if doc.doc_type == "other" and doc.doc_type_other %}
+    {{ doc.doc_type_other }}
+{% else %}
+    {{ doc.get_doc_type_display|default:"-" }}
+{% endif %}
+</td>
+
+<td>
+{% if doc.current_holder %}
+    {{ doc.current_holder.get_full_name|default:doc.current_holder.username }}
+{% else %}
+    🌍 External
+{% endif %}
+</td>
+
+<td>{{ doc.status }}</td>
+
+</tr>
+{% empty %}
+<tr><td colspan="5">No documents</td></tr>
+{% endfor %}
+
+</table>
+</div>
+
+
+<!-- ================= EXTERNAL DOCUMENTS ================= -->
+{% if request.user.profile.role|lower == "dispatch" and external_docs %}
+<div class="card" id="receiveBox" style="display:none;">
+<h3>🌍 External Documents</h3>
+
+<table class="styled-table">
+<tr>
+<th>Doc No</th>
+<th>Status</th>
+<th>External</th>
+<th>Action</th>
+</tr>
+
+{% for doc in external_docs %}
+<tr>
+<td>{{ doc.doc_number }}</td>
+<td>{{ doc.status }}</td>
+<td>{{ doc.external_approver }}</td>
+
+<td>
+
+<div class="dropdown">
+
+<button onclick="toggleMenu({{ doc.id }})" class="btn gray">
+⚙ Actions
+</button>
+
+<div id="menu-{{ doc.id }}" class="dropdown-menu">
+
+<form method="POST" action="{% url 'receive_back' doc.id %}">
+{% csrf_token %}
+<button type="submit">📥 Receive</button>
+</form>
+
+<form method="POST" action="{% url 'receive_and_mark' doc.id %}">
+{% csrf_token %}
+<button type="submit">📤 Receive + Mark</button>
+</form>
+
+<form method="POST" action="{% url 'receive_and_close' doc.id %}"
+onsubmit="return confirm('Close this document?');">
+{% csrf_token %}
+<button type="submit">❌ Receive + Close</button>
+</form>
+
+</div>
+</div>
+
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+</div>
+{% endif %}
+
+
+<!-- ================= CSS ================= -->
+<style>
+.green { background:#16a34a; color:white; }
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display:none;
+    position:absolute;
+    background:white;
+    min-width:180px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    border-radius:8px;
+    z-index:999;
+}
+
+.dropdown-menu button {
+    width:100%;
+    padding:10px;
+    border:none;
+    background:white;
+    text-align:left;
+    cursor:pointer;
+}
+
+.dropdown-menu button:hover {
+    background:#f1f5f9;
+}
+</style>
+
+
+<!-- ================= JS ================= -->
+<script>
+
+function toggleReceive(){
+    let box = document.getElementById("receiveBox");
+    box.style.display = (box.style.display === "none") ? "block" : "none";
+}
+
+function toggleMenu(id){
+    let menu = document.getElementById("menu-"+id);
+
+    document.querySelectorAll(".dropdown-menu").forEach(m=>{
+        if(m!==menu) m.style.display="none";
+    });
+
+    menu.style.display = (menu.style.display==="block") ? "none":"block";
+}
+
+document.addEventListener("click", function(e){
+    if(!e.target.closest(".dropdown")){
+        document.querySelectorAll(".dropdown-menu").forEach(m=>{
+            m.style.display="none";
+        });
+    }
+});
+
+</script>
+
+{% endblock %}

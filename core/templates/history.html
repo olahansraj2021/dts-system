@@ -1,0 +1,21 @@
+<h2>Document History</h2>
+
+<table border="1">
+<tr>
+    <th>From</th>
+    <th>To</th>
+    <th>Action</th>
+    <th>Remarks</th>
+    <th>Time</th>
+</tr>
+
+{% for h in history %}
+<tr>
+    <td>{{ h.sender }}</td>
+    <td>{{ h.receiver }}</td>
+    <td>{{ h.action }}</td>
+    <td>{{ h.remarks }}</td>
+    <td>{{ h.timestamp }}</td>
+</tr>
+{% endfor %}
+</table>
