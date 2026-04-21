@@ -1,67 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2 style="margin-bottom:15px;">📊 Master Dashboard</h2>
+<h2> Master Dashboard</h2>
 
-<!-- ================= STATS ================= -->
-<div class="stats-grid">
+<!-- 🔍 SEARCH + FILTER -->
+<div class="toolbar">
+    <form method="GET">
+        <input type="text" name="q" placeholder="🔍 Search..." value="{{ request.GET.q }}">
+        <button class="btn">Search</button>
+    </form>
 
-    <div class="stat-card">
-        <h4>Total Docs</h4>
-        <h2>{{ total_docs }}</h2>
+    <div>
+        <a href="?" class="btn">Active</a>
+        <a href="?all=1" class="btn">All</a>
     </div>
-
-    <div class="stat-card">
-        <h4>Active Docs</h4>
-        <h2>{{ active_docs }}</h2>
-    </div>
-
-    <div class="stat-card">
-        <h4>External</h4>
-        <h2>{{ external_docs }}</h2>
-    </div>
-
 </div>
 
+<!-- 📊 KPI -->
+<div class="kpi-grid">
+    <div class="kpi"><p>Total</p><h2>{{ total_docs }}</h2></div>
+    <div class="kpi"><p>Active</p><h2>{{ active_docs }}</h2></div>
+    <div class="kpi"><p>Closed</p><h2>{{ closed_docs }}</h2></div>
+    <div class="kpi"><p>External</p><h2>{{ external_docs }}</h2></div>
+</div>
 
-<!-- ================= USER WORKLOAD ================= -->
+<!-- 👥 USERS -->
 <div class="card">
-<h3>👥 Workload by User</h3>
+<h3>👥 Workload</h3>
 
 <table class="styled-table">
-
-<tr>
-<th>User</th>
-<th>Documents</th>
-</tr>
+<tr><th>User</th><th>Docs</th></tr>
 
 {% for u in user_data %}
-<tr class="clickable-row"
-    onclick="window.location='?user={{ u.current_holder__id }}'">
-
-<td>
-{{ u.current_holder__first_name }} {{ u.current_holder__last_name }}
-</td>
-
-<td>
-<span class="badge">{{ u.total_docs }}</span>
-</td>
-
+<tr onclick="window.location='?user={{ u.current_holder__id }}'" class="row">
+<td>{{ u.current_holder__first_name }} {{ u.current_holder__last_name }}</td>
+<td><span class="badge">{{ u.total_docs }}</span></td>
 </tr>
 {% endfor %}
-
 </table>
 </div>
 
-
-<!-- ================= CHART ================= -->
+<!-- 📈 CHART -->
 <div class="card">
-<h3>📈 Workload Distribution</h3>
+<h3>📈 Workload Chart</h3>
+<div class="chart-box">
 <canvas id="chart"></canvas>
 </div>
+</div>
 
-
-<!-- ================= DOCUMENT LIST ================= -->
+<!-- 📄 DOCUMENTS -->
 <div class="card">
 <h3>📄 Documents</h3>
 
@@ -79,42 +66,36 @@
 <tr>
 
 <td>{{ d.doc_number }}</td>
-
 <td>{{ d.subject }}</td>
 
 <td>
 {% if d.current_holder %}
-    {{ d.current_holder.get_full_name|default:d.current_holder.username }}
+{{ d.current_holder.get_full_name|default:d.current_holder.username }}
 {% else %}
-    🌍 External
+🌍 External
 {% endif %}
 </td>
 
 <td>
-<span class="status">{{ d.status }}</span>
+<span class="status {{ d.status|lower }}">{{ d.status }}</span>
 </td>
 
 <td>
-<a href="{% url 'document_detail' d.id %}" class="btn view-btn">View</a>
+<a href="{% url 'document_detail' d.id %}" class="btn view">View</a>
 </td>
 
 </tr>
 {% endfor %}
 
 </table>
-
 </div>
 
-
-<!-- ================= VIEW ALL ================= -->
+<!-- 📄 VIEW ALL -->
 <div style="text-align:center;">
-<a href="{% url 'master_dashboard' %}" class="btn main-btn">
-📄 View All Documents
-</a>
+<a href="?all=1" class="btn main">View All (Including Closed)</a>
 </div>
 
-
-<!-- ================= CHART JS ================= -->
+<!-- 📊 CHART JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -135,57 +116,60 @@ type: 'bar',
 data: {
     labels: labels,
     datasets: [{
-        label: 'Documents',
         data: data,
-        backgroundColor: [
-            '#38bdf8','#6366f1','#22c55e','#f59e0b','#ef4444'
-        ]
+        backgroundColor: '#38bdf8',
+        borderRadius: 6
     }]
 },
 options: {
-    responsive: true,
-    plugins: {
-        legend: { display: false }
-    },
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
     scales: {
-        y: {
-            beginAtZero: true,
-            ticks: {
-                stepSize: 1
-            }
-        }
+        y: { beginAtZero: true }
     }
 }
 });
 </script>
 
-
-<!-- ================= CSS ================= -->
+<!-- 🎨 CSS -->
 <style>
 
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:15px;
-margin-bottom:20px;
+.toolbar{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
 }
 
-.stat-card{
-background:linear-gradient(135deg,#1e293b,#0f172a);
+input{
+padding:6px;
+border-radius:6px;
+}
+
+.kpi-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-bottom:15px;
+}
+
+.kpi{
+background:#1e293b;
 color:white;
-padding:20px;
-border-radius:12px;
+padding:15px;
+border-radius:10px;
 text-align:center;
-box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
 .card{
 background:#1e293b;
 color:white;
-padding:20px;
-border-radius:12px;
-margin-bottom:20px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+.chart-box{
+height:250px;
 }
 
 .styled-table{
@@ -195,17 +179,16 @@ border-collapse:collapse;
 
 .styled-table th{
 background:#334155;
-padding:12px;
-text-align:left;
+padding:10px;
 }
 
 .styled-table td{
-padding:12px;
+padding:10px;
 border-bottom:1px solid #475569;
 }
 
-.clickable-row:hover{
-background:#334155;
+.row:hover{
+background:rgba(56,189,248,0.1);
 cursor:pointer;
 }
 
@@ -216,27 +199,25 @@ border-radius:20px;
 }
 
 .status{
-background:#475569;
-padding:5px 10px;
+padding:4px 8px;
 border-radius:6px;
+font-size:12px;
 }
+
+.status.marked{background:#2563eb;color:white;}
+.status.closed{background:#22c55e;color:white;}
+.status.external{background:#ef4444;color:white;}
 
 .btn{
-padding:6px 12px;
+padding:6px 10px;
 border-radius:6px;
 text-decoration:none;
-}
-
-.view-btn{
-background:#22c55e;
+background:#475569;
 color:white;
 }
 
-.main-btn{
-background:#38bdf8;
-color:white;
-padding:10px 15px;
-}
+.btn.view{background:#22c55e;}
+.btn.main{background:#38bdf8;}
 
 </style>
 

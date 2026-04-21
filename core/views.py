@@ -525,19 +525,20 @@ def report_view(request):
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db.models import Count, Q
-from .models import Document, Department
+from .models import Document
 
 @login_required
 def master_dashboard(request):
 
-    # ================= 🔍 FILTERS =================
     query = request.GET.get("q")
     user_id = request.GET.get("user")
-    doc_type = request.GET.get("type")
+    show_all = request.GET.get("all")
 
-    documents = Document.objects.exclude(
-        status__icontains="closed"
-    ).select_related('current_holder', 'sender_department')
+    documents = Document.objects.all().select_related('current_holder')
+
+    # 🔥 Only filter closed when NOT viewing all
+    if not show_all:
+        documents = documents.exclude(status__icontains="closed")
 
     if query:
         documents = documents.filter(
@@ -548,10 +549,7 @@ def master_dashboard(request):
     if user_id:
         documents = documents.filter(current_holder_id=user_id)
 
-    if doc_type:
-        documents = documents.filter(doc_type=doc_type)
-
-    # ================= 👥 USER WORKLOAD =================
+    # 👥 Workload
     user_data = (
         Document.objects
         .exclude(status__icontains="closed")
@@ -559,16 +557,16 @@ def master_dashboard(request):
         .values(
             'current_holder__id',
             'current_holder__first_name',
-            'current_holder__last_name',
-            'current_holder__username'
+            'current_holder__last_name'
         )
         .annotate(total_docs=Count('id'))
         .order_by('-total_docs')
     )
 
-    # ================= 📊 STATS =================
+    # 📊 Stats
     total_docs = Document.objects.count()
-    active_docs = documents.count()
+    active_docs = Document.objects.exclude(status__icontains="closed").count()
+    closed_docs = Document.objects.filter(status__icontains="closed").count()
     external_docs = Document.objects.filter(is_external=True).count()
 
     return render(request, 'master_dashboard.html', {
@@ -576,5 +574,6 @@ def master_dashboard(request):
         'user_data': user_data,
         'total_docs': total_docs,
         'active_docs': active_docs,
+        'closed_docs': closed_docs,
         'external_docs': external_docs,
     })
