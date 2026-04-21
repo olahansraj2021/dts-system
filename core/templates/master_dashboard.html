@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2>📊 Master Control Dashboard</h2>
+<h2 style="margin-bottom:15px;"> Master Dashboard</h2>
 
-<!-- 🔍 SEARCH + FILTER -->
+<!-- 🔍 TOOLBAR -->
 <div class="toolbar">
+
     <form method="GET">
         <input type="text" name="q" placeholder="🔍 Search..." value="{{ request.GET.q }}">
         <button class="btn">Search</button>
@@ -14,38 +15,60 @@
         <a href="?" class="btn">Active</a>
         <a href="?all=1" class="btn">All</a>
     </div>
+
 </div>
 
 <!-- 📊 KPI -->
 <div class="kpi-grid">
-    <div class="kpi"><p>Total</p><h2>{{ total_docs }}</h2></div>
-    <div class="kpi"><p>Active</p><h2>{{ active_docs }}</h2></div>
-    <div class="kpi"><p>Closed</p><h2>{{ closed_docs }}</h2></div>
-    <div class="kpi"><p>External</p><h2>{{ external_docs }}</h2></div>
+
+    <div class="kpi">
+        <p>Total</p>
+        <h2>{{ total_docs }}</h2>
+    </div>
+
+    <div class="kpi">
+        <p>Active</p>
+        <h2>{{ active_docs }}</h2>
+    </div>
+
+    <div class="kpi">
+        <p>Closed</p>
+        <h2>{{ closed_docs }}</h2>
+    </div>
+
+    <div class="kpi">
+        <p>External</p>
+        <h2>{{ external_docs }}</h2>
+    </div>
+
 </div>
 
-<!-- 👥 USERS -->
+<!-- 👥 USER WORKLOAD -->
 <div class="card">
 <h3>👥 Workload</h3>
 
 <table class="styled-table">
-<tr><th>User</th><th>Docs</th></tr>
+
+<tr>
+<th>User</th>
+<th>Docs</th>
+</tr>
 
 {% for u in user_data %}
-<tr onclick="window.location='?user={{ u.current_holder__id }}'" class="row">
-<td>{{ u.current_holder__first_name }} {{ u.current_holder__last_name }}</td>
-<td><span class="badge">{{ u.total_docs }}</span></td>
+<tr class="row" onclick="window.location='?user={{ u.current_holder__id }}'">
+
+<td>
+{{ u.current_holder__first_name }} {{ u.current_holder__last_name }}
+</td>
+
+<td>
+<span class="badge">{{ u.total_docs }}</span>
+</td>
+
 </tr>
 {% endfor %}
-</table>
-</div>
 
-<!-- 📈 CHART -->
-<div class="card">
-<h3>📈 Workload Chart</h3>
-<div class="chart-box">
-<canvas id="chart"></canvas>
-</div>
+</table>
 </div>
 
 <!-- 📄 DOCUMENTS -->
@@ -66,6 +89,7 @@
 <tr>
 
 <td>{{ d.doc_number }}</td>
+
 <td>{{ d.subject }}</td>
 
 <td>
@@ -77,59 +101,28 @@
 </td>
 
 <td>
-<span class="status {{ d.status|lower }}">{{ d.status }}</span>
+<span class="status {{ d.status|lower }}">
+{{ d.status }}
+</span>
 </td>
 
 <td>
-<a href="{% url 'document_detail' d.id %}" class="btn view">View</a>
+<a href="{% url 'document_detail' d.id %}" class="btn view-btn">View</a>
 </td>
 
 </tr>
 {% endfor %}
 
 </table>
+
 </div>
 
 <!-- 📄 VIEW ALL -->
-<div style="text-align:center;">
-<a href="?all=1" class="btn main">View All (Including Closed)</a>
+<div class="view-all-container">
+    <a href="?all=1" class="view-all-btn">
+        📄 View All Documents (Including Closed)
+    </a>
 </div>
-
-<!-- 📊 CHART JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-const labels = [
-{% for u in user_data %}
-"{{ u.current_holder__first_name }}",
-{% endfor %}
-];
-
-const data = [
-{% for u in user_data %}
-{{ u.total_docs }},
-{% endfor %}
-];
-
-new Chart(document.getElementById('chart'), {
-type: 'bar',
-data: {
-    labels: labels,
-    datasets: [{
-        data: data,
-        backgroundColor: '#38bdf8',
-        borderRadius: 6
-    }]
-},
-options: {
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-        y: { beginAtZero: true }
-    }
-}
-});
-</script>
 
 <!-- 🎨 CSS -->
 <style>
@@ -137,19 +130,22 @@ options: {
 .toolbar{
 display:flex;
 justify-content:space-between;
+align-items:center;
 margin-bottom:15px;
 }
 
 input{
-padding:6px;
+padding:6px 10px;
 border-radius:6px;
+border:none;
+outline:none;
 }
 
 .kpi-grid{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:10px;
-margin-bottom:15px;
+gap:15px;
+margin-bottom:20px;
 }
 
 .kpi{
@@ -165,59 +161,85 @@ background:#1e293b;
 color:white;
 padding:15px;
 border-radius:10px;
-margin-bottom:15px;
+margin-bottom:20px;
 }
 
-.chart-box{
-height:250px;
-}
-
+/* TABLE */
 .styled-table{
 width:100%;
 border-collapse:collapse;
 }
 
 .styled-table th{
-background:#334155;
-padding:10px;
+background:#1f2937;
+padding:12px;
+text-align:left;
 }
 
 .styled-table td{
-padding:10px;
-border-bottom:1px solid #475569;
+padding:12px;
+border-bottom:1px solid #374151;
+color:#e5e7eb;
 }
 
-.row:hover{
-background:rgba(56,189,248,0.1);
+/* HOVER FIX */
+.styled-table tr{
+transition:all 0.2s ease;
+}
+
+.styled-table tr:hover{
+background:rgba(59,130,246,0.15);
 cursor:pointer;
 }
 
+/* BADGE */
 .badge{
 background:#38bdf8;
 padding:5px 10px;
 border-radius:20px;
 }
 
+/* STATUS */
 .status{
-padding:4px 8px;
-border-radius:6px;
+padding:4px 10px;
+border-radius:20px;
 font-size:12px;
 }
 
 .status.marked{background:#2563eb;color:white;}
-.status.closed{background:#22c55e;color:white;}
-.status.external{background:#ef4444;color:white;}
+.status.closed{background:#16a34a;color:white;}
+.status.external{background:#dc2626;color:white;}
 
+/* BUTTONS */
 .btn{
-padding:6px 10px;
+padding:6px 12px;
 border-radius:6px;
-text-decoration:none;
 background:#475569;
 color:white;
+text-decoration:none;
 }
 
-.btn.view{background:#22c55e;}
-.btn.main{background:#38bdf8;}
+.view-btn{
+background:#22c55e;
+}
+
+/* VIEW ALL FIX */
+.view-all-container{
+text-align:center;
+margin:20px 0;
+}
+
+.view-all-btn{
+background:#0ea5e9;
+padding:10px 20px;
+border-radius:8px;
+color:white;
+text-decoration:none;
+}
+
+.view-all-btn:hover{
+background:#0284c7;
+}
 
 </style>
 
