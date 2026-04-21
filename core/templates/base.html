@@ -314,6 +314,8 @@ function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("collapsed");
     document.getElementById("main").classList.toggle("collapsed");
 }
+    window.onload = function(){
+    document.body.classList.add("collapsed");}
 
 function confirmLogout() {
     return confirm("Are you sure you want to logout?");
