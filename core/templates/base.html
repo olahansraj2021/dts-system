@@ -1,324 +1,325 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>IIT Bombay Administration Document Tracking System</title>
+<title>IIT Bombay Administration Document Tracking System</title>
 
-    <!-- ICONS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #f1f5f9;
-            display: flex;
-        }
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#f1f5f9;
+display:flex;
+}
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background: #0f172a;
-            color: white;
-            position: fixed;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
+/* SIDEBAR */
+.sidebar{
+width:240px;
+height:100vh;
+background:#0f172a;
+color:white;
+position:fixed;
+transition:0.3s;
+display:flex;
+flex-direction:column;
+}
 
-        .sidebar.collapsed {
-            width: 70px;
-        }
+.sidebar.collapsed{
+width:70px;
+}
 
-        .logo {
-            padding: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            color: #38bdf8;
-        }
+/* HEADER (☰ + HOME) */
+.sidebar-header{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:15px;
+padding:15px 0;
+}
 
-        .sidebar.collapsed .logo-text {
-            display: none;
-        }
+.menu-toggle{
+font-size:22px;
+cursor:pointer;
+}
 
-        .menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+.home-icon{
+background:#2563eb;
+padding:12px;
+border-radius:10px;
+color:white;
+}
 
-        .menu li {
-            margin: 5px 10px;
-        }
+/* LOGO */
+.logo{
+text-align:center;
+color:#38bdf8;
+font-weight:bold;
+margin-bottom:10px;
+}
 
-        .menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #cbd5f5;
-            transition: 0.3s;
-            position: relative;
-        }
+.sidebar.collapsed .logo-text{
+display:none;
+}
 
-        .menu i {
-            font-size: 18px;
-            width: 25px;
-            text-align: center;
-        }
+/* MENU */
+.menu{
+list-style:none;
+padding:0;
+margin:0;
+}
 
-        .menu-text {
-            white-space: nowrap;
-        }
+.menu li{
+margin:5px 10px;
+}
 
-        .sidebar.collapsed .menu-text {
-            display: none;
-        }
+.menu a{
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px;
+border-radius:10px;
+text-decoration:none;
+color:#cbd5f5;
+transition:0.2s;
+position:relative;
+}
 
-        .sidebar.collapsed a {
-            justify-content: center;
-        }
+.menu i{
+width:25px;
+text-align:center;
+}
 
-        .menu a:hover {
-            background: #1e293b;
-            color: #38bdf8;
-            transform: translateX(5px);
-        }
+.sidebar.collapsed .menu-text{
+display:none;
+}
 
-        .menu li.active a {
-            background: #2563eb;
-            color: white;
-        }
+.sidebar.collapsed a{
+justify-content:center;
+}
 
-        /* TOOLTIP */
-        .sidebar.collapsed a::after {
-            content: attr(data-title);
-            position: absolute;
-            left: 80px;
-            background: black;
-            color: white;
-            padding: 5px 8px;
-            border-radius: 5px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.2s;
-        }
+/* HOVER FIX */
+.menu a:hover{
+background:#1e293b;
+color:#38bdf8;
+}
 
-        .sidebar.collapsed a:hover::after {
-            opacity: 1;
-        }
+/* ACTIVE */
+.menu li.active a{
+background:#2563eb;
+color:white;
+}
 
-        /* MAIN */
-        .main {
-            margin-left: 240px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            transition: margin-left 0.3s ease;
-        }
+/* TOOLTIP */
+.sidebar.collapsed a::after{
+content:attr(data-title);
+position:absolute;
+left:75px;
+background:#000;
+color:#fff;
+padding:4px 8px;
+border-radius:5px;
+opacity:0;
+transition:0.2s;
+font-size:12px;
+}
 
-        .main.collapsed {
-            margin-left: 70px;
-        }
+.sidebar.collapsed a:hover::after{
+opacity:1;
+}
 
-        /* TOPBAR */
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: white;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+/* MAIN */
+.main{
+margin-left:240px;
+width:100%;
+transition:0.3s;
+display:flex;
+flex-direction:column;
+min-height:100vh;
+}
 
-        /* CONTENT */
-        .container {
-            padding: 20px;
-            flex: 1;
-        }
+.main.collapsed{
+margin-left:70px;
+}
 
-        /* FOOTER */
-        .footer {
-            background: #0f172a;
-            color: #94a3b8;
-            text-align: center;
-            padding: 10px;
-        }
+/* TOPBAR */
+.topbar{
+background:white;
+padding:12px 20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
 
-        /* CARDS */
-        .card {
-            background: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+/* CONTENT */
+.container{
+padding:20px;
+flex:1;
+}
 
-        /* TABLE */
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+/* FOOTER */
+.footer{
+background:#0f172a;
+color:#94a3b8;
+text-align:center;
+padding:10px;
+}
 
-        .styled-table th {
-            background: #1e293b;
-            color: white;
-            padding: 10px;
-        }
+/* CARD */
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
 
-        .styled-table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
+/* TABLE */
+.styled-table{
+width:100%;
+border-collapse:collapse;
+}
 
-        .styled-table tr:hover {
-            background: #f1f5f9;
-        }
+.styled-table th{
+background:#1e293b;
+color:white;
+padding:10px;
+}
 
-        /* BUTTONS */
-        .btn {
-            padding: 5px 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 13px;
-            display: inline-block;
-        }
+.styled-table td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
 
-        .blue { background:#2563eb; color:white; }
-        .red { background:#dc2626; color:white; }
-        .gray { background:#64748b; color:white; }
+.styled-table tr:hover{
+background:#e2e8f0; /* FIXED hover */
+}
 
-    </style>
+/* BUTTON */
+.btn{
+padding:5px 10px;
+border-radius:5px;
+text-decoration:none;
+font-size:13px;
+}
+
+.blue{background:#2563eb;color:white;}
+.red{background:#dc2626;color:white;}
+.gray{background:#64748b;color:white;}
+
+</style>
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
+<div class="sidebar collapsed" id="sidebar">
 
-    <div class="logo">
-        <span class="logo-text">IIT Bombay</span>
-    </div>
+<div class="sidebar-header">
+<div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+<a href="{% url 'dashboard' %}" class="home-icon">
+<i class="fa fa-home"></i>
+</a>
+</div>
+
+<div class="logo">
+<span class="logo-text">IIT Bombay</span>
+</div>
 
 <ul class="menu">
 
-    <!-- Dashboard -->
-    <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-        <a href="{% url 'dashboard' %}" data-title="Dashboard">
-            <i class="fa fa-home"></i>
-            <span class="menu-text">Dashboard</span>
-        </a>
-    </li>
+<li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+<a href="{% url 'dashboard' %}" data-title="Dashboard">
+<i class="fa fa-home"></i>
+<span class="menu-text">Dashboard</span>
+</a>
+</li>
 
-    <!-- Master Dashboard (Deputy Registrar only) -->
-    {% if request.user.profile.role == "Deputy Registrar" %}
-    <li class="{% if request.resolver_match.url_name == 'master_dashboard' %}active{% endif %}">
-        <a href="{% url 'master_dashboard' %}" data-title="Master Dashboard">
-            <i class="fa fa-bar-chart"></i>
-            <span class="menu-text">Master Dashboard</span>
-        </a>
-    </li>
-    {% endif %}
+{% if request.user.profile.role == "Deputy Registrar" %}
+<li class="{% if request.resolver_match.url_name == 'master_dashboard' %}active{% endif %}">
+<a href="{% url 'master_dashboard' %}" data-title="Master Dashboard">
+<i class="fa fa-bar-chart"></i>
+<span class="menu-text">Master Dashboard</span>
+</a>
+</li>
+{% endif %}
 
-    <!-- Create -->
-    <li class="{% if request.resolver_match.url_name == 'create_document' %}active{% endif %}">
-        <a href="{% url 'create_document' %}" data-title="Create">
-            <i class="fa fa-plus"></i>
-            <span class="menu-text">Create</span>
-        </a>
-    </li>
+<li class="{% if request.resolver_match.url_name == 'create_document' %}active{% endif %}">
+<a href="{% url 'create_document' %}" data-title="Create">
+<i class="fa fa-plus"></i>
+<span class="menu-text">Create</span>
+</a>
+</li>
 
-    <!-- Profile -->
-    <li class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-        <a href="{% url 'profile' %}" data-title="Profile">
-            <i class="fa fa-user"></i>
-            <span class="menu-text">Profile</span>
-        </a>
-    </li>
+<li class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+<a href="{% url 'profile' %}" data-title="Profile">
+<i class="fa fa-user"></i>
+<span class="menu-text">Profile</span>
+</a>
+</li>
 
-    <!-- Sent Documents -->
-    <li class="{% if request.resolver_match.url_name == 'sent_documents' %}active{% endif %}">
-        <a href="{% url 'sent_documents' %}" data-title="My Sent Documents">
-            <i class="fa fa-file"></i>
-            <span class="menu-text">My Sent Documents</span>
-        </a>
-    </li>
+<li class="{% if request.resolver_match.url_name == 'sent_documents' %}active{% endif %}">
+<a href="{% url 'sent_documents' %}" data-title="My Sent Documents">
+<i class="fa fa-file"></i>
+<span class="menu-text">My Sent Documents</span>
+</a>
+</li>
 
-    <!-- Reports -->
-    <li class="{% if request.resolver_match.url_name == 'report' %}active{% endif %}">
-        <a href="{% url 'report' %}" data-title="Reports">
-            <i class="fa fa-line-chart"></i>
-            <span class="menu-text">Reports</span>
-        </a>
-    </li>
+<li class="{% if request.resolver_match.url_name == 'report' %}active{% endif %}">
+<a href="{% url 'report' %}" data-title="Reports">
+<i class="fa fa-line-chart"></i>
+<span class="menu-text">Reports</span>
+</a>
+</li>
 
-    <!-- Logout -->
-    <li>
-        <a href="{% url 'logout' %}" data-title="Logout" onclick="return confirmLogout()">
-            <i class="fa fa-sign-out"></i>
-            <span class="menu-text">Logout</span>
-        </a>
-    </li>
+<li>
+<a href="{% url 'logout' %}" data-title="Logout" onclick="return confirmLogout()">
+<i class="fa fa-sign-out"></i>
+<span class="menu-text">Logout</span>
+</a>
+</li>
 
 </ul>
-
 </div>
 
 <!-- MAIN -->
-<div class="main" id="main">
+<div class="main collapsed" id="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+<div class="topbar">
 
-        <div style="display:flex; align-items:center; gap:10px;">
-            <button onclick="toggleSidebar()" style="font-size:18px; background:none; border:none; cursor:pointer;">
-                ☰
-            </button>
-            <span style="font-weight:bold;">Document Tracking System</span>
-        </div>
+<div style="font-weight:bold;">
+Document Tracking System
+</div>
 
-        <div style="display:flex; align-items:center; gap:15px;">
-            <span>
-                {{ request.user.get_full_name }} ({{ request.user.profile.role }})
-            </span>
+<div style="display:flex;gap:15px;">
+<span>{{ request.user.get_full_name }} ({{ request.user.profile.role }})</span>
 
-            <span style="background:#2563eb; color:white; padding:5px 10px; border-radius:20px;">
-                {{ pending_count }}
-            </span>
-        </div>
+<span style="background:#2563eb;color:white;padding:5px 10px;border-radius:20px;">
+{{ pending_count }}
+</span>
+</div>
 
-    </div>
+</div>
 
-    <!-- CONTENT -->
-    <div class="container">
-        {% block content %}
-        {% endblock %}
-    </div>
+<div class="container">
+{% block content %}{% endblock %}
+</div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        © 2026 IIT Bombay | Administration
-    </div>
+<div class="footer">
+© 2026 IIT Bombay | Administration
+</div>
 
 </div>
 
 <script>
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("collapsed");
-    document.getElementById("main").classList.toggle("collapsed");
+function toggleSidebar(){
+document.getElementById("sidebar").classList.toggle("collapsed");
+document.getElementById("main").classList.toggle("collapsed");
 }
-    window.onload = function(){
-    document.body.classList.add("collapsed");}
 
-function confirmLogout() {
-    return confirm("Are you sure you want to logout?");
+function confirmLogout(){
+return confirm("Are you sure you want to logout?");
 }
 </script>
 
