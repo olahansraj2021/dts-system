@@ -522,27 +522,59 @@ def report_view(request):
         "departments": Department.objects.all()
     })
 
-from django.db.models import Count
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.db.models import Count, Q
+from .models import Document, Department
 
 @login_required
 def master_dashboard(request):
 
+    # ================= 🔍 FILTERS =================
+    query = request.GET.get("q")
+    user_id = request.GET.get("user")
+    doc_type = request.GET.get("type")
+
+    documents = Document.objects.exclude(
+        status__icontains="closed"
+    ).select_related('current_holder', 'sender_department')
+
+    if query:
+        documents = documents.filter(
+            Q(subject__icontains=query) |
+            Q(doc_number__icontains=query)
+        )
+
+    if user_id:
+        documents = documents.filter(current_holder_id=user_id)
+
+    if doc_type:
+        documents = documents.filter(doc_type=doc_type)
+
+    # ================= 👥 USER WORKLOAD =================
     user_data = (
         Document.objects
+        .exclude(status__icontains="closed")
         .filter(current_holder__isnull=False)
         .values(
+            'current_holder__id',
             'current_holder__first_name',
-            'current_holder__last_name'
+            'current_holder__last_name',
+            'current_holder__username'
         )
         .annotate(total_docs=Count('id'))
         .order_by('-total_docs')
     )
 
-    documents = Document.objects.exclude(
-        status__icontains="closed"
-    ).select_related('current_holder')
+    # ================= 📊 STATS =================
+    total_docs = Document.objects.count()
+    active_docs = documents.count()
+    external_docs = Document.objects.filter(is_external=True).count()
 
     return render(request, 'master_dashboard.html', {
+        'documents': documents,
         'user_data': user_data,
-        'documents': documents
+        'total_docs': total_docs,
+        'active_docs': active_docs,
+        'external_docs': external_docs,
     })
