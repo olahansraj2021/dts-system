@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
@@ -61,6 +62,7 @@ class Document(models.Model):
 
     status = models.CharField(max_length=50, default="Received")
     created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
     priority = models.CharField(
     max_length=10,
     choices=[('Normal','Normal'), ('Urgent','Urgent')],

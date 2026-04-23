@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib import messages
+from django.utils import timezone
 
 from .models import Document, Workflow, Department, Movement
 
@@ -270,6 +271,7 @@ def close_document(request, doc_id):
         remarks = request.POST.get("remarks", "")
 
         doc.status = "Closed"
+        doc.closed_at = timezone.now()
         doc.save()
 
         Workflow.objects.create(
@@ -528,6 +530,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db.models import Count, Q
 from .models import Document
+from django.db.models import Q, Count, F, ExpressionWrapper, DurationField
+from django.utils import timezone
 
 @login_required
 def master_dashboard(request):
@@ -538,20 +542,30 @@ def master_dashboard(request):
 
     documents = Document.objects.all().select_related('current_holder')
 
-    # 🔥 Only filter closed when NOT viewing all
+    # Only filter closed when NOT viewing all
     if not show_all:
         documents = documents.exclude(status__icontains="closed")
 
+    # 🔍 SEARCH
     if query:
         documents = documents.filter(
             Q(subject__icontains=query) |
             Q(doc_number__icontains=query)
         )
 
+    # 👤 FILTER BY USER
     if user_id:
         documents = documents.filter(current_holder_id=user_id)
 
-    # 👥 Workload
+    # 🆕 PENDING DAYS
+    documents = documents.annotate(
+        pending_days=ExpressionWrapper(
+            timezone.now() - F('created_at'),
+            output_field=DurationField()
+        )
+    )
+
+    # 👥 WORKLOAD
     user_data = (
         Document.objects
         .exclude(status__icontains="closed")
@@ -565,7 +579,7 @@ def master_dashboard(request):
         .order_by('-total_docs')
     )
 
-    # 📊 Stats
+    # 📊 STATS
     total_docs = Document.objects.count()
     active_docs = Document.objects.exclude(status__icontains="closed").count()
     closed_docs = Document.objects.filter(status__icontains="closed").count()

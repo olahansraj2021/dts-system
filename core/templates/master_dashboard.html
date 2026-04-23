@@ -55,7 +55,7 @@
 </tr>
 
 {% for u in user_data %}
-<tr class="row" onclick="window.location='?user={{ u.current_holder__id }}'">
+<tr onclick="window.location='?user={{ u.current_holder__id }}'">
 
 <td>
 {{ u.current_holder__first_name }} {{ u.current_holder__last_name }}
@@ -82,11 +82,22 @@
 <th>Subject</th>
 <th>Holder</th>
 <th>Status</th>
+<th>Days</th>
 <th>Action</th>
 </tr>
 
 {% for d in documents %}
-<tr>
+{% with d.pending_days.days as days %}
+
+<tr class="
+{% if days >= 30 %}
+row-red
+{% elif days >= 15 %}
+row-orange
+{% elif days >= 7 %}
+row-yellow
+{% endif %}
+">
 
 <td>{{ d.doc_number }}</td>
 
@@ -107,10 +118,28 @@
 </td>
 
 <td>
+<span class="
+{% if days >= 30 %}
+badge-red
+{% elif days >= 15 %}
+badge-orange
+{% elif days >= 7 %}
+badge-yellow
+{% else %}
+badge-normal
+{% endif %}
+">
+{{ days }} days
+</span>
+</td>
+
+<td>
 <a href="{% url 'document_detail' d.id %}" class="btn view-btn">View</a>
 </td>
 
 </tr>
+
+{% endwith %}
 {% endfor %}
 
 </table>
@@ -182,7 +211,6 @@ border-bottom:1px solid #374151;
 color:#e5e7eb;
 }
 
-/* HOVER FIX */
 .styled-table tr{
 transition:all 0.2s ease;
 }
@@ -210,6 +238,17 @@ font-size:12px;
 .status.closed{background:#16a34a;color:white;}
 .status.external{background:#dc2626;color:white;}
 
+/* DAYS BADGE */
+.badge-normal { background:#334155; padding:4px 10px; border-radius:20px; }
+.badge-yellow { background:#facc15; color:black; padding:4px 10px; border-radius:20px; }
+.badge-orange { background:#fb923c; color:white; padding:4px 10px; border-radius:20px; }
+.badge-red { background:#ef4444; color:white; padding:4px 10px; border-radius:20px; font-weight:bold; }
+
+/* ROW HIGHLIGHT */
+.row-yellow { background:rgba(250,204,21,0.1); }
+.row-orange { background:rgba(251,146,60,0.1); }
+.row-red { background:rgba(239,68,68,0.15); }
+
 /* BUTTONS */
 .btn{
 padding:6px 12px;
@@ -223,7 +262,7 @@ text-decoration:none;
 background:#22c55e;
 }
 
-/* VIEW ALL FIX */
+/* VIEW ALL */
 .view-all-container{
 text-align:center;
 margin:20px 0;
