@@ -30,6 +30,8 @@ class Document(models.Model):
     on_delete=models.SET_NULL,
     null=True,
     related_name='assigned_documents')
+    
+    ref_no = models.CharField(max_length=100,blank=True,null=True)
 
     DOCUMENT_TYPES = [
     ('office_order', 'Office Order'),
