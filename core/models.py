@@ -18,6 +18,12 @@ class Profile(models.Model):
 
 class Document(models.Model):
     doc_number = models.CharField(max_length=50, unique=True, blank=True)
+    ref_number = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
     subject = models.TextField()
     sender = models.ForeignKey(
     User,
@@ -30,8 +36,6 @@ class Document(models.Model):
     on_delete=models.SET_NULL,
     null=True,
     related_name='assigned_documents')
-    
-    ref_no = models.CharField(max_length=100,blank=True,null=True)
 
     DOCUMENT_TYPES = [
     ('office_order', 'Office Order'),

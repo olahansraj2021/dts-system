@@ -65,6 +65,7 @@ def create_document(request):
         subject = request.POST.get("subject")
         first_user_id = request.POST.get("first_user")
         priority = request.POST.get("priority")
+        ref_number = request.POST.get("ref_number")
 
         #  NEW FIELDS
         doc_type = request.POST.get("doc_type")
@@ -88,6 +89,7 @@ def create_document(request):
             current_holder=first_user,
             status=f"Marked to {first_user.get_full_name() or first_user.username}",
             priority=priority,
+            ref_number=ref_number if ref_number else None,
 
             #  SAVE NEW DATA
             doc_type=doc_type,

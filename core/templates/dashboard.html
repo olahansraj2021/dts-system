@@ -43,6 +43,7 @@
 <tr>
 <th>Doc No</th>
 <th>Subject</th>
+<th>Ref No</th>
 <th>Type</th>
 <th>Sender</th>
 <th>Date</th>
@@ -55,6 +56,7 @@
 
 <td>{{ doc.doc_number }}</td>
 <td>{{ doc.subject }}</td>
+<td>{{ d.ref_number|default:"—" }}</td>
 
 <!-- TYPE -->
 <td>
