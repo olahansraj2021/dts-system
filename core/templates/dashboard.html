@@ -110,6 +110,7 @@
 <tr>
 <th>Doc No</th>
 <th>Subject</th>
+<th>Ref No</th>
 <th>Type</th>
 <th>Current Holder</th>
 <th>Status</th>
@@ -120,6 +121,7 @@
 
 <td>{{ doc.doc_number }}</td>
 <td>{{ doc.subject }}</td>
+<td>{{ d.ref_number|default:"—" }}</td>
 
 <td>
 {% if doc.doc_type == "other" and doc.doc_type_other %}
