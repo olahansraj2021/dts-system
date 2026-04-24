@@ -546,7 +546,7 @@ def master_dashboard(request):
     if not show_all:
         documents = documents.exclude(status__icontains="closed")
 
-    # 🔍 SEARCH
+    #  SEARCH
     if query:
         documents = documents.filter(
             Q(subject__icontains=query) |
@@ -557,10 +557,10 @@ def master_dashboard(request):
     if user_id:
         documents = documents.filter(current_holder_id=user_id)
 
-    # 🆕 PENDING DAYS
+    #  PENDING DAYS
     documents = documents.annotate(
         pending_days=ExpressionWrapper(
-            timezone.now() - F('created_at'),
+            timezone.now() - F('date_received'),
             output_field=DurationField()
         )
     )
