@@ -233,7 +233,7 @@ font-size:13px;
 </a>
 </li>
 
-{% if request.user.profile.role == "Deputy Registrar" %}
+{% if request.user.profile.role == "Deputy Registrar" or request.user.profile.role == "Assistant Registrar" %}
 <li class="{% if request.resolver_match.url_name == 'master_dashboard' %}active{% endif %}">
 <a href="{% url 'master_dashboard' %}" data-title="Master Dashboard">
 <i class="fa fa-bar-chart"></i>
